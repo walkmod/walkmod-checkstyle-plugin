@@ -4,4 +4,9 @@
 
 <beans>
 	<bean id="org.walkmod:walkmod-checkstyle-plugin:checkstyle" class="org.walkmod.checkstyle.visitors.CheckStyleVisitor"></bean>
+	<bean id="org.walkmod:walkmod-checkstyle-plugin:ArrayTypeStyle"
+		class="org.walkmod.checkstyle.treewalkers.ArrayTypeStyle"></bean>
+	<bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidInlineConditionals"
+		class="org.walkmod.checkstyle.treewalkers.AvoidInlineConditionals"></bean>
+	<bean id="org.walkmod:walkmod-checkstyle-plugin:NeedBraces" class="org.walkmod.checkstyle.treewalkers.NeedBraces"></bean>
 </beans>

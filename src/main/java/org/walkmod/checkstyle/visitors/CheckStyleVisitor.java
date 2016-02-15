@@ -18,12 +18,14 @@ package org.walkmod.checkstyle.visitors;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 import org.walkmod.util.DomHelper;
@@ -36,6 +38,8 @@ public class CheckStyleVisitor extends VoidVisitorAdapter<VisitorContext> {
    private String configurationfile;
 
    private Set<String> rules = new HashSet<String>();
+
+   private LinkedList<AbstractCheckStyleRule<?>> visitors;
 
    public void setConfigurationFile(String configurationFile) throws Exception {
       this.configurationfile = configurationFile;
@@ -83,6 +87,31 @@ public class CheckStyleVisitor extends VoidVisitorAdapter<VisitorContext> {
 
       } finally {
          is.close();
+      }
+   }
+   
+   @Override
+   public void visit(CompilationUnit cu, VisitorContext ctx) {
+
+      if (rules != null) {
+         if (visitors == null) {
+            visitors = new LinkedList<AbstractCheckStyleRule<?>>();
+            for (String rule : rules) {
+               String beanName = "checkstyle:" + rule;
+               if (ctx.getArchitectureConfig().getConfiguration().containsBean(beanName)) {
+                  Object o = ctx.getBean(beanName, null);
+                  if (o instanceof AbstractCheckStyleRule) {
+                     AbstractCheckStyleRule<?> aux = (AbstractCheckStyleRule<?>) o;
+                     aux.visitChildren(false);
+                     visitors.add(aux);
+                  }
+               }
+            }
+         }
+         for (AbstractCheckStyleRule<?> visitor : visitors) {
+            visitor.visit(cu, null);
+         }
+         super.visit(cu, ctx);
       }
    }
 }
