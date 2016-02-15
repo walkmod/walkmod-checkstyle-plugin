@@ -9,4 +9,5 @@
 	<bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidInlineConditionals"
 		class="org.walkmod.checkstyle.treewalkers.AvoidInlineConditionals"></bean>
 	<bean id="org.walkmod:walkmod-checkstyle-plugin:NeedBraces" class="org.walkmod.checkstyle.treewalkers.NeedBraces"></bean>
+	<bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidStartImport" class="org.walkmod.checkstyle.treewalkers.AvoidStartImport"></bean>
 </beans>
