@@ -10,4 +10,5 @@
 		class="org.walkmod.checkstyle.treewalkers.AvoidInlineConditionals"></bean>
 	<bean id="org.walkmod:walkmod-checkstyle-plugin:NeedBraces" class="org.walkmod.checkstyle.treewalkers.NeedBraces"></bean>
 	<bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidStartImport" class="org.walkmod.checkstyle.treewalkers.AvoidStartImport"></bean>
+	<bean id="org.walkmod:walkmod-checkstyle-plugin:UnusedImport" class="org.walkmod.checkstyle.treewalkers.UnusedImport"></bean>
 </beans>
