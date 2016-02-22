@@ -15,4 +15,6 @@
 		class="org.walkmod.checkstyle.treewalkers.UnusedImport"></bean>
 	<bean id="org.walkmod:walkmod-checkstyle-plugin:RedundantImport"
 		class="org.walkmod.checkstyle.treewalkers.RedundantImport"></bean>
+	<bean id="org.walkmod:walkmod-checkstyle-plugin:EmptyStatement"
+        class="org.walkmod.checkstyle.treewalkers.EmptyStatement"></bean>
 </beans>
