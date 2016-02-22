@@ -17,6 +17,9 @@ package org.walkmod.checkstyle.visitors;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -126,57 +129,89 @@ public class CheckStyleVisitor extends VoidVisitorAdapter<VisitorContext> {
 
    public void setConfigurationFile(String configurationFile) throws Exception {
       this.configurationfile = configurationFile;
-      parseCfg(configurationfile);
+      InputStream is = null;
+      URL url = this.getClass().getResource(configurationFile);
+      if (url != null) {
+         //we try as a resource
+         File cfgFile = new File(url.toURI());
+         if (cfgFile.exists()) {
+            is = new FileInputStream(cfgFile);
+         }
+
+      } else {
+         try {
+            //we try as URL
+            url = new URL(configurationFile);
+            is = url.openStream();
+         } catch (MalformedURLException e) {
+         }
+         if (url == null) {
+            //we try as file
+            File cfgFile = new File(configurationfile);
+            if (cfgFile.exists()) {
+               is = new FileInputStream(cfgFile);
+            }
+         }
+      }
+      if (is != null) {
+         try {
+            parseCfg(is);
+         } finally {
+            is.close();
+         }
+      }
    }
-   
-   protected Set<String> getRules(){
+
+   protected Set<String> getRules() {
       return rules;
    }
 
-   private void parseCfg(String config) throws Exception {
-      File cfgFile = new File(config);
-      FileInputStream is = new FileInputStream(cfgFile);
-      try {
-         InputSource in = new InputSource(is);
-         in.setSystemId(configurationfile);
-         Document doc = DomHelper.parse(in);
-         NodeList module = doc.getElementsByTagName("module");
-         int max = module.getLength();
-         for (int i = 0; i < max; i++) {
-            Node rule = module.item(i);
-            if (rule instanceof Element) {
-               Element elem = (Element) rule;
-               if (elem.hasAttribute("name")) {
-                  String name = elem.getAttribute("name");
-                  if (name.equals("TreeWalker")) {
-                     NodeList children = elem.getChildNodes();
-                     int limit = children.getLength();
-                     for (int k = 0; k < limit; k++) {
-                        Node child = children.item(k);
-                        if (child.getNodeName().equals("module")) {
-                           if (child instanceof Element) {
-                              Element exclude = (Element) child;
-                              String excludeName = exclude.getAttribute("name");
-                              this.rules.add(excludeName);
-                           }
+   private void parseCfg(InputStream is) throws Exception {
+
+      InputSource in = new InputSource(is);
+      in.setSystemId(configurationfile);
+      Document doc = DomHelper.parse(in);
+      NodeList module = doc.getElementsByTagName("module");
+      int max = module.getLength();
+      for (int i = 0; i < max; i++) {
+         Node rule = module.item(i);
+         if (rule instanceof Element) {
+            Element elem = (Element) rule;
+            if (elem.hasAttribute("name")) {
+               String name = elem.getAttribute("name");
+               if (name.equals("TreeWalker")) {
+                  NodeList children = elem.getChildNodes();
+                  int limit = children.getLength();
+                  for (int k = 0; k < limit; k++) {
+                     Node child = children.item(k);
+                     if (child.getNodeName().equals("module")) {
+                        if (child instanceof Element) {
+                           Element exclude = (Element) child;
+                           String excludeName = exclude.getAttribute("name");
+                           this.rules.add(excludeName);
                         }
                      }
-
                   }
 
                }
+
             }
          }
-
-      } finally {
-         is.close();
       }
+
    }
-   
+
    @Override
    public void visit(CompilationUnit cu, VisitorContext ctx) {
 
-      if (rules != null) {
+      if (configurationfile == null) {
+         try {
+            setConfigurationFile("sun_checks.xml");
+         } catch (Exception e) {
+            throw new RuntimeException(e);
+         }
+      }
+      if (rules != null && !rules.isEmpty()) {
          if (visitors == null) {
             visitors = new LinkedList<AbstractCheckStyleRule<?>>();
             for (String rule : rules) {
@@ -197,7 +232,7 @@ public class CheckStyleVisitor extends VoidVisitorAdapter<VisitorContext> {
          super.visit(cu, ctx);
       }
    }
-   
+
    public void visit(PackageDeclaration n, VisitorContext ctx) {
       if (visitors != null) {
          for (AbstractCheckStyleRule<?> visitor : visitors) {
