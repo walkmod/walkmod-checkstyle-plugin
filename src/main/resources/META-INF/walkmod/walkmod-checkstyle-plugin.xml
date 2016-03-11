@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-   "http://www.springframework.org/dtd/spring-beans.dtd">
+        "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:checkstyle" class="org.walkmod.checkstyle.visitors.CheckStyleVisitor"></bean>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:ArrayTypeStyle"
-		class="org.walkmod.checkstyle.treewalkers.ArrayTypeStyle"></bean>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidInlineConditionals"
-		class="org.walkmod.checkstyle.treewalkers.AvoidInlineConditionals"></bean>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:NeedBraces" class="org.walkmod.checkstyle.treewalkers.NeedBraces"></bean>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidStartImport"
-		class="org.walkmod.checkstyle.treewalkers.AvoidStartImport"></bean>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:UnusedImport"
-		class="org.walkmod.checkstyle.treewalkers.UnusedImport"></bean>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:RedundantImport"
-		class="org.walkmod.checkstyle.treewalkers.RedundantImport"></bean>
-	<bean id="org.walkmod:walkmod-checkstyle-plugin:EmptyStatement"
-        class="org.walkmod.checkstyle.treewalkers.EmptyStatement"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:checkstyle"
+          class="org.walkmod.checkstyle.visitors.CheckStyleVisitor"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:ArrayTypeStyle"
+          class="org.walkmod.checkstyle.treewalkers.ArrayTypeStyle"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidInlineConditionals"
+          class="org.walkmod.checkstyle.treewalkers.AvoidInlineConditionals"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:NeedBraces"
+          class="org.walkmod.checkstyle.treewalkers.NeedBraces"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidStartImport"
+          class="org.walkmod.checkstyle.treewalkers.AvoidStartImport"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:UnusedImport"
+          class="org.walkmod.checkstyle.treewalkers.UnusedImport"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:RedundantImport"
+          class="org.walkmod.checkstyle.treewalkers.RedundantImport"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:EmptyStatement"
+          class="org.walkmod.checkstyle.treewalkers.EmptyStatement"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:EmptyCatchBlock"
+          class="org.walkmod.checkstyle.treewalkers.EmptyCatchBlock">
+    </bean>
 </beans>
