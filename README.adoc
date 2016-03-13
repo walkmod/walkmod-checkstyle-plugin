@@ -1,0 +1,51 @@
+walkmod-checkstyle-plugin
+=========================
+This is a walkmod plugin to automatically correct those Checkstyle rules that have a unique resolution. Currently, the supported rules are:
+
+----
+- TreeWalker/ArrayTypeStyle
+- TreeWalker/AvoidInlineConditionals
+- TreeWalker/AvoidStarImport
+- TreeWalker/EmptyCatchBlock
+- TreeWalker/EmptyStatement
+- TreeWalker/NeedBraces
+- TreeWalker/RedundantImport
+- TreeWalker/UnusedImports
+----
+
+== Usage
+
+1) Verify that your walkmod version is > = 2.2.0
+
+2) Execute the following command to add this code transformation plugin as part of your conventions.
+
+----
+walkmod add checkstyle -DconfigurationFile='my-checkstyle-file.xml'
+----
+
+If you don't specify a configuration file, the applied conventions are the Sun conventions. If you are interested 
+in using the Google conventions, type:
+
+----
+walkmod add checkstyle -DconfigurationFile='google_checks.xml'
+----
+
+3) Now, You see the results, executing: 
+
+----
+walkmod apply
+----
+
+Or, alternatively, you can also check which would be the modified classes typing:
+
+----
+walkmod check
+----
+
+== Contributing
+
+If you want to hack on this, fork it, improve it and send me a pull request.
+
+To get started using it, just clone it and call mvn install. 
+
+
