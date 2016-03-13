@@ -2,6 +2,7 @@ walkmod-checkstyle-plugin
 =========================
 
 image:https://travis-ci.org/walkmod/walkmod-checkstyle-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/walkmod/walkmod-checkstyle-plugin"]
+
 This is a walkmod plugin to automatically correct those Checkstyle rules that have a unique resolution. Currently, the supported rules are:
 
 ----
