@@ -13,8 +13,8 @@
           class="org.walkmod.checkstyle.treewalkers.NeedBraces"></bean>
     <bean id="org.walkmod:walkmod-checkstyle-plugin:AvoidStarImport"
           class="org.walkmod.checkstyle.treewalkers.AvoidStarImport"></bean>
-    <bean id="org.walkmod:walkmod-checkstyle-plugin:UnusedImport"
-          class="org.walkmod.checkstyle.treewalkers.UnusedImport"></bean>
+    <bean id="org.walkmod:walkmod-checkstyle-plugin:UnusedImports"
+          class="org.walkmod.checkstyle.treewalkers.UnusedImports"></bean>
     <bean id="org.walkmod:walkmod-checkstyle-plugin:RedundantImport"
           class="org.walkmod.checkstyle.treewalkers.RedundantImport"></bean>
     <bean id="org.walkmod:walkmod-checkstyle-plugin:EmptyStatement"
