@@ -97,7 +97,7 @@ public class NeedBraces<A> extends AbstractCheckStyleRule<A> {
       if (tokens.contains("LITERAL_ELSE")) {
          Statement stmt = n.getElseStmt();
          if (!(stmt instanceof BlockStmt)) {
-            if (stmt == null || (stmt != null && !allowSingleLineStatement)) {
+            if (stmt != null && !allowSingleLineStatement) {
                n.setElseStmt(convert(stmt));
             }
          }

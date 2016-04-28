@@ -215,7 +215,7 @@ public class CheckStyleVisitor extends VoidVisitorAdapter<VisitorContext> {
          if (visitors == null) {
             visitors = new LinkedList<AbstractCheckStyleRule<?>>();
             for (String rule : rules) {
-               String beanName = "checkstyle:" + rule;
+               String beanName = "org.walkmod:walkmod-checkstyle-plugin:" + rule;
                if (ctx.getArchitectureConfig().getConfiguration().containsBean(beanName)) {
                   Object o = ctx.getBean(beanName, null);
                   if (o instanceof AbstractCheckStyleRule) {

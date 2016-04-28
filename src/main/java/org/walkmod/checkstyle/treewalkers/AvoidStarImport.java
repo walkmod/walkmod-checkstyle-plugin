@@ -1,10 +1,10 @@
 package org.walkmod.checkstyle.treewalkers;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ASTManager;
@@ -24,14 +24,22 @@ public class AvoidStarImport<A> extends AbstractCheckStyleRule<A> {
    public void visit(ImportDeclaration node, A ctx) {
       if (node.isAsterisk()) {
          List<SymbolReference> refs = node.getUsages();
-         Set<String> classes = new HashSet<String>();
+         Map<String, List<SymbolReference>> classes = new HashMap<String, List<SymbolReference>>();
          if (refs != null) {
             for (SymbolReference sr : refs) {
                if (sr instanceof SymbolDataAware<?>) {
                   SymbolDataAware<?> aux = (SymbolDataAware<?>) sr;
                   SymbolData sd = aux.getSymbolData();
                   if (sd != null) {
-                     classes.add(sd.getName());
+                     List<SymbolReference> refsAux = null;
+                     if (classes.containsKey(sd.getName())) {
+                        refsAux = classes.get(sd.getName());
+                     } else {
+                        refsAux = new LinkedList<SymbolReference>();
+                        classes.put(sd.getName(), refsAux);
+                     }
+                     refsAux.add(sr);
+
                   }
                }
             }
@@ -49,11 +57,16 @@ public class AvoidStarImport<A> extends AbstractCheckStyleRule<A> {
          if (found) {
             it.remove();
             if (!classes.isEmpty()) {
-               for (String clazz : classes) {
+               for (String clazz : classes.keySet()) {
                   ImportDeclaration id;
                   try {
                      id = new ImportDeclaration((NameExpr) ASTManager.parse(NameExpr.class, clazz), node.isStatic(),
                            false);
+                     List<SymbolReference> refsAux = classes.get(clazz);
+                     for(SymbolReference sr: refsAux){
+                        sr.setSymbolDefinition(id);
+                     }
+                     id.setUsages(refsAux);
                      imports.add(i, id);
                   } catch (ParseException e) {
                      throw new RuntimeException(e);

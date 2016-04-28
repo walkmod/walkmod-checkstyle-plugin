@@ -105,7 +105,7 @@ public class RedundantImport<A> extends AbstractCheckStyleRule<A> {
             if (pakage == null || !importedName.startsWith(pakage)) {
                List<SymbolReference> usages = node.getUsages();
                Set<String> relatedImports = asteriskImports.get(importedName);
-               Set<String> importsToAdd = new HashSet<String>();
+               Map<String, List<SymbolReference>> importsToAdd = new HashMap<String, List<SymbolReference>>();
                if (usages != null) {
                   Iterator<SymbolReference> it = usages.iterator();
                   while (it.hasNext()) {
@@ -114,22 +114,31 @@ public class RedundantImport<A> extends AbstractCheckStyleRule<A> {
                         SymbolDataAware<?> sda = (SymbolDataAware<?>) current;
                         String typeName = sda.getSymbolData().getName();
                         if (!relatedImports.contains(typeName)) {
-                           importsToAdd.add(typeName);
+                           List<SymbolReference> references = new LinkedList<SymbolReference>();
+                           references.add(current);
+                           importsToAdd.put(typeName, references);
+                        } else {
+                           importsToAdd.get(typeName).add(current);
                         }
+
                      }
                   }
-               }
-               else if(node.isNewNode()){
+               } else if (node.isNewNode()) {
                   correctImports.add(node); //we don't know if it is needed by other new nodes.
                }
                if (!importsToAdd.isEmpty()) {
-                  Iterator<String> it = importsToAdd.iterator();
+                  Iterator<String> it = importsToAdd.keySet().iterator();
                   while (it.hasNext()) {
                      String next = it.next();
                      NameExpr name;
                      try {
                         name = (NameExpr) ASTManager.parse(NameExpr.class, next);
                         ImportDeclaration id = new ImportDeclaration(name, false, false);
+                        List<SymbolReference> references = importsToAdd.get(next);
+                        for (SymbolReference ref : references) {
+                           ref.setSymbolDefinition(id);
+                        }
+                        id.setUsages(references);
                         correctImports.add(id);
                      } catch (ParseException e) {
                         throw new RuntimeException(e);
