@@ -14,20 +14,11 @@
   You should have received a copy of the GNU Lesser General Public License
   along with Walkmod.  If not, see <http://www.gnu.org/licenses/>.*/
 package org.walkmod.checkstyle.visitors;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.walkmod.checkstyle.xml.ConfigurationReader;
 import org.walkmod.javalang.ast.BlockComment;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.ImportDeclaration;
@@ -114,97 +105,31 @@ import org.walkmod.javalang.ast.type.VoidType;
 import org.walkmod.javalang.ast.type.WildcardType;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.visitors.VoidVisitorAdapter;
-import org.walkmod.util.DomHelper;
 import org.walkmod.walkers.VisitorContext;
-import org.xml.sax.InputSource;
 
 @RequiresSemanticAnalysis
 public class CheckStyleVisitor extends VoidVisitorAdapter<VisitorContext> {
 
-   private String configurationfile;
+   private ConfigurationReader reader;
 
    private Set<String> rules = new HashSet<String>();
 
    private LinkedList<AbstractCheckStyleRule<?>> visitors;
 
    public void setConfigurationFile(String configurationFile) throws Exception {
-      this.configurationfile = configurationFile;
-      InputStream is = null;
-      URL url = this.getClass().getResource(configurationFile);
-      if (url != null) {
-         //we try as a resource
-         File cfgFile = new File(url.toURI());
-         if (cfgFile.exists()) {
-            is = new FileInputStream(cfgFile);
-         }
-
-      } else {
-         try {
-            //we try as URL
-            url = new URL(configurationFile);
-            is = url.openStream();
-         } catch (MalformedURLException e) {
-         }
-         if (url == null) {
-            //we try as file
-            File cfgFile = new File(configurationfile);
-            if (cfgFile.exists()) {
-               is = new FileInputStream(cfgFile);
-            }
-         }
-      }
-      if (is != null) {
-         try {
-            parseCfg(is);
-         } finally {
-            is.close();
-         }
-      }
+      this.reader = new ConfigurationReader(configurationFile);
+      this.rules = reader.getRules();
    }
 
    protected Set<String> getRules() {
       return rules;
    }
 
-   private void parseCfg(InputStream is) throws Exception {
-
-      InputSource in = new InputSource(is);
-      in.setSystemId(configurationfile);
-      Document doc = DomHelper.parse(in);
-      NodeList module = doc.getElementsByTagName("module");
-      int max = module.getLength();
-      for (int i = 0; i < max; i++) {
-         Node rule = module.item(i);
-         if (rule instanceof Element) {
-            Element elem = (Element) rule;
-            if (elem.hasAttribute("name")) {
-               String name = elem.getAttribute("name");
-               if (name.equals("TreeWalker")) {
-                  NodeList children = elem.getChildNodes();
-                  int limit = children.getLength();
-                  for (int k = 0; k < limit; k++) {
-                     Node child = children.item(k);
-                     if (child.getNodeName().equals("module")) {
-                        if (child instanceof Element) {
-                           Element exclude = (Element) child;
-                           String excludeName = exclude.getAttribute("name");
-                           this.rules.add(excludeName);
-                        }
-                     }
-                  }
-
-               }
-
-            }
-         }
-      }
-
-   }
 
    @Override
    public void visit(CompilationUnit cu, VisitorContext ctx) {
 
-      if (configurationfile == null) {
+      if (reader.getConfigurationFile() == null) {
          try {
             setConfigurationFile("sun_checks.xml");
          } catch (Exception e) {
