@@ -91,7 +91,7 @@ public class RedundantImport<A> extends AbstractCheckStyleRule<A> {
          if (aux != null) {
             if (pakage == null || !importedName.startsWith(pakage)) {
                if (aux == node) {
-                  if (!importedName.startsWith("java.lang")) {
+                  if (!importedName.startsWith("java.lang") || importedName.split("\\.").length > 3) {
                      correctImports.add(node);
                   }
                } else {

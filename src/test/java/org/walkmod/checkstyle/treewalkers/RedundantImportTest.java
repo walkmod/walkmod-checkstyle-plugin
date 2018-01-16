@@ -27,8 +27,14 @@ public class RedundantImportTest extends SemanticTest{
       Assert.assertEquals(2, cu.getImports().size());
       Assert.assertEquals("java.util.Collection", cu.getImports().get(0).getName().toString());
       Assert.assertEquals("java.util.List", cu.getImports().get(1).getName().toString());
-      
    }
-   
-   
+
+   @Test
+   public void testItDoesNotRemovesReflectionPackages() throws Exception {
+      CompilationUnit cu = compile(
+              "import java.lang.reflect.Method; public class Foo{ Method bar; }");
+      RedundantImport<?> visitor = new RedundantImport<Object>();
+      cu.accept(visitor, null);
+      Assert.assertEquals(1, cu.getImports().size());
+   }
 }
