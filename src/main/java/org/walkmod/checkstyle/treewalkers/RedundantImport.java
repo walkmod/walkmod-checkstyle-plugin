@@ -20,57 +20,85 @@ import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
+/**
+ * Checks for redundant import statements. An import statement is considered redundant if:
+ *
+ * - It is a duplicate of another import. This is, when a class is imported more than once.
+ * - The class non-statically imported is from the java.lang package, e.g. importing java.lang.String.
+ * - The class non-statically imported is from the same package as the current package.
+ * @param <A> context
+ */
 @RequiresSemanticAnalysis
 public class RedundantImport<A> extends AbstractCheckStyleRule<A> {
 
-   private Map<String, ImportDeclaration> mapping;
+   private Map<String, ImportDeclaration> nonAsteriskImports;
 
-   private String pakage = null;
+   private String package_ = null;
 
    private Map<String, Set<String>> asteriskImports = new HashMap<String, Set<String>>();
+
+   private void setPackage(CompilationUnit cu) {
+      PackageDeclaration pkg = cu.getPackage();
+      if (pkg != null) {
+         package_ = pkg.getName().toString();
+      }
+   }
+
+   private void setAsteriskImports(CompilationUnit cu) {
+      Iterator<ImportDeclaration> it = cu.getImports().iterator();
+      while (it.hasNext()) {
+         ImportDeclaration id = it.next();
+         if (id.isAsterisk()) {
+            asteriskImports.put(id.getName().toString(), new HashSet<String>());
+         }
+      }
+   }
+
+   private void setNonAsteriskImports(CompilationUnit cu) {
+      nonAsteriskImports = new HashMap<String, ImportDeclaration>();
+      Iterator<ImportDeclaration> it = cu.getImports().iterator();
+      while (it.hasNext()) {
+         ImportDeclaration id = it.next();
+         String name = id.getName().toString();
+         if (!id.isAsterisk()) {
+            nonAsteriskImports.put(name, id);
+         }
+      }
+   }
+
+   private void setRedundantImportsForAsterisk(CompilationUnit cu) {
+      Iterator<ImportDeclaration> it = cu.getImports().iterator();
+      while (it.hasNext()) {
+         ImportDeclaration id = it.next();
+         String name = id.getName().toString();
+         if (!id.isAsterisk()) {
+            int index = name.lastIndexOf(".");
+            if (index != -1) {
+               String pkgName = name.substring(0, index);
+               if (asteriskImports.containsKey(pkgName)) {
+                  Set<String> relatedImports = asteriskImports.get(pkgName);
+                  relatedImports.add(name);
+               }
+            }
+         }
+      }
+   }
 
    @Override
    public void visit(CompilationUnit cu, A ctx) {
       List<ImportDeclaration> imports = cu.getImports();
       if (imports != null) {
-         PackageDeclaration pkg = cu.getPackage();
-         if (pkg != null) {
-            pakage = pkg.getName().toString();
-         }
-         mapping = new HashMap<String, ImportDeclaration>();
+         setPackage(cu);
+         setAsteriskImports(cu);
+         setNonAsteriskImports(cu);
+         setRedundantImportsForAsterisk(cu);
 
-         Iterator<ImportDeclaration> it = imports.iterator();
-         while (it.hasNext()) {
-            ImportDeclaration id = it.next();
-            if (id.isAsterisk()) {
-               asteriskImports.put(id.getName().toString(), new HashSet<String>());
-            }
-
-         }
-
-         it = imports.iterator();
-         while (it.hasNext()) {
-            ImportDeclaration id = it.next();
-            String name = id.getName().toString();
-            if (!id.isAsterisk()) {
-               mapping.put(name, id);
-               int index = name.lastIndexOf(".");
-               if (index != -1) {
-                  String pkgName = name.substring(0, index);
-                  if (asteriskImports.containsKey(pkgName)) {
-                     Set<String> relatedImports = asteriskImports.get(pkgName);
-                     relatedImports.add(name);
-                  }
-               }
-            }
-         }
          ImportsCleaner ic = new ImportsCleaner();
-         it = imports.iterator();
+         Iterator<ImportDeclaration> it = imports.iterator();
          while (it.hasNext()) {
             it.next().accept(ic, ctx);
          }
          cu.setImports(ic.getImports());
-
       }
    }
 
@@ -82,69 +110,69 @@ public class RedundantImport<A> extends AbstractCheckStyleRule<A> {
          return correctImports;
       }
 
-      @Override
-      public void visit(ImportDeclaration node, A ctx) {
+      private boolean isInTheSamePackage(String importName) {
 
-         String importedName = node.getName().toString();
+         if (package_ == null) {
+            return false;
+         }
+         if (!importName.startsWith(package_)) {
+            return false;
+         }
 
-         ImportDeclaration aux = mapping.get(importedName);
-         if (aux != null) {
-            if (pakage == null || !importedName.startsWith(pakage)) {
-               if (aux == node) {
-                  if (!importedName.startsWith("java.lang") || importedName.split("\\.").length > 3) {
-                     correctImports.add(node);
-                  }
-               } else {
-                  if (node.isStatic()) {
-                     correctImports.add(node);
-                  }
+         String[] packageTokens = package_.split("\\.");
+         String[] tokens = importName.split("\\.");
+         return (tokens.length == packageTokens.length);
+      }
+
+      private boolean isRedundantJavaLangImport(String importedName) {
+         return importedName.startsWith("java.lang") && importedName.split("\\.").length == 3;
+      }
+
+      private boolean requiresAsteriskImport(ImportDeclaration importDeclaration) {
+
+         String importedName = importDeclaration.getName().toString();
+
+         if(asteriskImports.get(importedName).isEmpty()) {
+            return true;
+         }
+
+         List<SymbolReference> usages = importDeclaration.getUsages();
+         Set<String> usedImports = new HashSet<String>();
+
+         if (usages != null) {
+            Iterator<SymbolReference> it = usages.iterator();
+            while (it.hasNext()) {
+               SymbolReference current = it.next();
+               if (current instanceof SymbolDataAware<?>) {
+                  SymbolDataAware<?> sda = (SymbolDataAware<?>) current;
+                  String typeName = sda.getSymbolData().getName();
+                  usedImports.add(typeName);
                }
             }
+         }
+
+         return !nonAsteriskImports.keySet().containsAll(usedImports);
+      }
+
+
+      @Override
+      public void visit(ImportDeclaration importDeclaration, A ctx) {
+         String importedName = importDeclaration.getName().toString();
+         if (nonAsteriskImports.containsKey(importedName)) {
+
+            if (isRedundantJavaLangImport(importedName)) {
+               return;
+            }
+
+            if (importDeclaration.isStatic() || !isInTheSamePackage(importedName)) {
+               correctImports.add(importDeclaration);
+            }
          } else {
-            //isAsterisk
-            if (pakage == null || !importedName.startsWith(pakage)) {
-               List<SymbolReference> usages = node.getUsages();
-               Set<String> relatedImports = asteriskImports.get(importedName);
-               Map<String, List<SymbolReference>> importsToAdd = new HashMap<String, List<SymbolReference>>();
-               if (usages != null) {
-                  Iterator<SymbolReference> it = usages.iterator();
-                  while (it.hasNext()) {
-                     SymbolReference current = it.next();
-                     if (current instanceof SymbolDataAware<?>) {
-                        SymbolDataAware<?> sda = (SymbolDataAware<?>) current;
-                        String typeName = sda.getSymbolData().getName();
-                        if (!relatedImports.contains(typeName)) {
-                           List<SymbolReference> references = new LinkedList<SymbolReference>();
-                           references.add(current);
-                           importsToAdd.put(typeName, references);
-                        } else {
-                           importsToAdd.get(typeName).add(current);
-                        }
-
-                     }
-                  }
-               } else if (node.isNewNode()) {
-                  correctImports.add(node); //we don't know if it is needed by other new nodes.
-               }
-               if (!importsToAdd.isEmpty()) {
-                  Iterator<String> it = importsToAdd.keySet().iterator();
-                  while (it.hasNext()) {
-                     String next = it.next();
-                     NameExpr name;
-                     try {
-                        name = (NameExpr) ASTManager.parse(NameExpr.class, next);
-                        ImportDeclaration id = new ImportDeclaration(name, false, false);
-                        List<SymbolReference> references = importsToAdd.get(next);
-                        for (SymbolReference ref : references) {
-                           ref.setSymbolDefinition(id);
-                        }
-                        id.setUsages(references);
-                        correctImports.add(id);
-                     } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                     }
-
-                  }
+            if (!isInTheSamePackage(importedName)) {
+               if (importDeclaration.getUsages() == null && importDeclaration.isNewNode()) {
+                  correctImports.add(importDeclaration);
+               } else  if (requiresAsteriskImport(importDeclaration)){
+                  correctImports.add(importDeclaration);
                }
             }
          }
