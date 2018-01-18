@@ -96,7 +96,7 @@ public class NeedBraces<A> extends AbstractCheckStyleRule<A> {
       }
       if (tokens.contains("LITERAL_ELSE")) {
          Statement stmt = n.getElseStmt();
-         if (!(stmt instanceof BlockStmt)) {
+         if (!(stmt instanceof BlockStmt) && !(stmt instanceof IfStmt)) {
             if (stmt != null && !allowSingleLineStatement) {
                n.setElseStmt(convert(stmt));
             }
@@ -121,7 +121,12 @@ public class NeedBraces<A> extends AbstractCheckStyleRule<A> {
    @Override
    public void visit(SwitchEntryStmt n, A ctx) {
       Expression label = n.getLabel();
-      String labelName = label.toString().trim();
+      String labelName = "default";
+
+      if (label != null) {
+         labelName = label.toString().trim();
+      }
+
       if ((!labelName.equals("default") && tokens.contains("LITERAL_CASE"))
             || (labelName.equals("default") && tokens.contains("LITERAL_DEFAULT"))) {
          List<Statement> stmts = n.getStmts();

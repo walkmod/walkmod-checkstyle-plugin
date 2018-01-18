@@ -2,6 +2,7 @@ package org.walkmod.checkstyle.treewalkers;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.body.MethodDeclaration;
 import org.walkmod.javalang.ast.stmt.BlockStmt;
 import org.walkmod.javalang.ast.stmt.IfStmt;
+import org.walkmod.javalang.ast.stmt.Statement;
 import org.walkmod.javalang.ast.stmt.SwitchStmt;
 
 public class NeedBracesTest {
@@ -38,5 +40,26 @@ public class NeedBracesTest {
       MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
       SwitchStmt switchStmt = (SwitchStmt) md.getBody().getStmts().get(0);
       Assert.assertTrue(switchStmt.getEntries().get(0).getStmts().get(0) instanceof BlockStmt);
+   }
+
+   @Test
+   public void testNestedIfsAreIgnored() throws Exception {
+      CompilationUnit cu = ASTManager.parse(
+              "public class Foo{ " +
+                      "public int hello() { " +
+                      "if (1 < 0) { " +
+                      "return -1; " +
+                      "} else if (2+1 != 3) { " +
+                      "return 0; " +
+                      "} else { " +
+                      "return 2;" +
+                      "} " +
+                      "} }");
+      NeedBraces<?> visitor = new NeedBraces<Object>();
+      cu.accept(visitor, null);
+      MethodDeclaration md = (MethodDeclaration) cu.getTypes().get(0).getMembers().get(0);
+      List<Statement> stmts = md.getBody().getStmts();
+      Assert.assertTrue(stmts.get(0) instanceof IfStmt);
+      Assert.assertTrue(((IfStmt)stmts.get(0)).getElseStmt() instanceof IfStmt);
    }
 }
