@@ -19,4 +19,11 @@ public class CheckStyleVisitorTest {
         Assert.assertTrue(rules.contains("UnusedImports"));
     }
 
+    @Test
+    public void testDefaultConfigurationIsDownloaded() throws Exception {
+        CheckStyleVisitor visitor = new CheckStyleVisitor();
+        Set<String> rules = visitor.getRules();
+        Assert.assertNotNull(rules);
+    }
+
 }
