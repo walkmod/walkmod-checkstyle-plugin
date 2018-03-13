@@ -129,7 +129,7 @@ public class CheckStyleVisitor extends VoidVisitorAdapter<VisitorContext> {
    @Override
    public void visit(CompilationUnit cu, VisitorContext ctx) {
 
-      if (reader.getConfigurationFile() == null) {
+      if (reader == null || reader.getConfigurationFile() == null) {
          try {
             setConfigurationFile("sun_checks.xml");
          } catch (Exception e) {
