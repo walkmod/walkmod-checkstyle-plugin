@@ -20,6 +20,7 @@ import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 @RequiresSemanticAnalysis
 public class AvoidStarImport<A> extends AbstractCheckStyleRule<A> {
 
+
    @Override
    public void visit(ImportDeclaration node, A ctx) {
       if (node.isAsterisk()) {
@@ -30,13 +31,16 @@ public class AvoidStarImport<A> extends AbstractCheckStyleRule<A> {
                if (sr instanceof SymbolDataAware<?>) {
                   SymbolDataAware<?> aux = (SymbolDataAware<?>) sr;
                   SymbolData sd = aux.getSymbolData();
-                  if (sd != null) {
+                  if (sd != null && ! sd.getClazz().isMemberClass()) {
                      List<SymbolReference> refsAux = null;
-                     if (classes.containsKey(sd.getName())) {
-                        refsAux = classes.get(sd.getName());
+
+                     String symbolClassName = sd.getName();
+
+                     if (classes.containsKey(symbolClassName)) {
+                        refsAux = classes.get(symbolClassName);
                      } else {
                         refsAux = new LinkedList<SymbolReference>();
-                        classes.put(sd.getName(), refsAux);
+                        classes.put(symbolClassName, refsAux);
                      }
                      refsAux.add(sr);
 
