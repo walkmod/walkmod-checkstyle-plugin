@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ASTManager;
 import org.walkmod.javalang.ParseException;
 import org.walkmod.javalang.ast.CompilationUnit;
@@ -74,7 +73,7 @@ public class AvoidStarImport<A> extends VoidVisitorAdapter<A> {
                      id.setUsages(refsAux);
                      imports.add(i, id);
                   } catch (ParseException e) {
-                     throw new RuntimeException(e);
+                     //skip it, because there is no reason to fail. Only in cases where they do not represent class names.
                   }
                }
             }
