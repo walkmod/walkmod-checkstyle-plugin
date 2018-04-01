@@ -52,6 +52,7 @@ public class AvoidStarImport<A> extends VoidVisitorAdapter<A> {
          List<ImportDeclaration> imports = new LinkedList<ImportDeclaration>(cu.getImports());
          Iterator<ImportDeclaration> it = imports.iterator();
          int i = -1;
+         boolean errored = false;
          boolean found = false;
          while (it.hasNext() && !found) {
             i++;
@@ -73,12 +74,15 @@ public class AvoidStarImport<A> extends VoidVisitorAdapter<A> {
                      id.setUsages(refsAux);
                      imports.add(i, id);
                   } catch (ParseException e) {
-                     //skip it, because there is no reason to fail. Only in cases where they do not represent class names.
+                     errored = true;
+                     //probably it is an static import
                   }
                }
             }
          }
-         cu.setImports(imports);
+         if (!errored) {
+            cu.setImports(imports);
+         }
       }
    }
 }
