@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ast.expr.Expression;
 import org.walkmod.javalang.ast.expr.LambdaExpr;
 import org.walkmod.javalang.ast.stmt.BlockStmt;

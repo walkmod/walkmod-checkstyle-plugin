@@ -2,7 +2,6 @@ package org.walkmod.checkstyle.treewalkers;
 
 import java.util.List;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ast.body.FieldDeclaration;
 import org.walkmod.javalang.ast.body.VariableDeclarator;
 import org.walkmod.javalang.ast.body.VariableDeclaratorId;

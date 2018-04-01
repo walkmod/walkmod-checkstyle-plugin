@@ -3,7 +3,6 @@ package org.walkmod.checkstyle.treewalkers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ast.BlockComment;
 import org.walkmod.javalang.ast.Comment;
 import org.walkmod.javalang.ast.CompilationUnit;
