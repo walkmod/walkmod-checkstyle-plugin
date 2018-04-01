@@ -8,15 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
-import org.walkmod.javalang.ASTManager;
-import org.walkmod.javalang.ParseException;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.ImportDeclaration;
 import org.walkmod.javalang.ast.PackageDeclaration;
 import org.walkmod.javalang.ast.SymbolDataAware;
 import org.walkmod.javalang.ast.SymbolReference;
-import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
 import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
@@ -29,7 +25,7 @@ import org.walkmod.javalang.visitors.VoidVisitorAdapter;
  * @param <A> context
  */
 @RequiresSemanticAnalysis
-public class RedundantImport<A> extends AbstractCheckStyleRule<A> {
+public class RedundantImport<A> extends VoidVisitorAdapter<A> {
 
    private Map<String, ImportDeclaration> nonAsteriskImports;
 

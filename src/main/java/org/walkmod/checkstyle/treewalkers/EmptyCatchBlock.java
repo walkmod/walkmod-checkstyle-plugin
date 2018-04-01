@@ -3,15 +3,15 @@ package org.walkmod.checkstyle.treewalkers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ast.BlockComment;
 import org.walkmod.javalang.ast.Comment;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.stmt.BlockStmt;
 import org.walkmod.javalang.ast.stmt.CatchClause;
 import org.walkmod.javalang.ast.stmt.TryStmt;
+import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
-public class EmptyCatchBlock<A> extends AbstractCheckStyleRule<A> {
+public class EmptyCatchBlock<A> extends VoidVisitorAdapter<A> {
 
    private String commentFormat = " Intentionally blank ";
 
