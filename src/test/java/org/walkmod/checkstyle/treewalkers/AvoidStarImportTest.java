@@ -32,4 +32,13 @@ public class AvoidStarImportTest extends SemanticTest{
       Assert.assertEquals(1, cu.getImports().size());
       Assert.assertEquals("java.util.Map", cu.getImports().get(0).getName().toString());
    }
+
+   @Test
+   public void testStaticImports() throws Exception {
+      CompilationUnit cu = compile(
+              "import static java.lang.Math.*; public class Foo{ int absoluteValue = abs(-21); }");
+      AvoidStarImport<?> visitor = new AvoidStarImport<Object>();
+      cu.accept(visitor, null);
+      Assert.assertEquals(1, cu.getImports().size());
+   }
 }
