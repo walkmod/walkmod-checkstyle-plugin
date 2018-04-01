@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ast.Node;
 import org.walkmod.javalang.ast.body.BodyDeclaration;
 import org.walkmod.javalang.ast.body.ClassOrInterfaceDeclaration;
@@ -24,7 +23,7 @@ import org.walkmod.javalang.ast.stmt.ReturnStmt;
 import org.walkmod.javalang.ast.stmt.Statement;
 import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
-public class AvoidInlineConditionals<A> extends AbstractCheckStyleRule<A> {
+public class AvoidInlineConditionals<A> extends VoidVisitorAdapter<A> {
 
    @Override
    public void visit(ConditionalExpr n, A ctx) {

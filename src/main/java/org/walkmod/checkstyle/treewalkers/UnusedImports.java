@@ -4,14 +4,14 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.walkmod.checkstyle.visitors.AbstractCheckStyleRule;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.ImportDeclaration;
 import org.walkmod.javalang.ast.SymbolReference;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
+import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
 @RequiresSemanticAnalysis
-public class UnusedImports<A> extends AbstractCheckStyleRule<A> {
+public class UnusedImports<A> extends VoidVisitorAdapter<A> {
 
    @Override
    public void visit(ImportDeclaration node, A ctx) {
