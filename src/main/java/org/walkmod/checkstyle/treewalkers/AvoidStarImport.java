@@ -16,9 +16,10 @@ import org.walkmod.javalang.ast.SymbolDataAware;
 import org.walkmod.javalang.ast.SymbolReference;
 import org.walkmod.javalang.ast.expr.NameExpr;
 import org.walkmod.javalang.compiler.symbols.RequiresSemanticAnalysis;
+import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
 @RequiresSemanticAnalysis
-public class AvoidStarImport<A> extends AbstractCheckStyleRule<A> {
+public class AvoidStarImport<A> extends VoidVisitorAdapter<A> {
 
 
    @Override

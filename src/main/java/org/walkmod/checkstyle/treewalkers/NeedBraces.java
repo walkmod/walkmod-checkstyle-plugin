@@ -16,8 +16,9 @@ import org.walkmod.javalang.ast.stmt.IfStmt;
 import org.walkmod.javalang.ast.stmt.Statement;
 import org.walkmod.javalang.ast.stmt.SwitchEntryStmt;
 import org.walkmod.javalang.ast.stmt.WhileStmt;
+import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
-public class NeedBraces<A> extends AbstractCheckStyleRule<A> {
+public class NeedBraces<A> extends VoidVisitorAdapter<A> {
 
    private boolean allowSingleLineStatement = false;
 

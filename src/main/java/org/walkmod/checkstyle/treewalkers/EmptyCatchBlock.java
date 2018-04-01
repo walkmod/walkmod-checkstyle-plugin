@@ -10,8 +10,9 @@ import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.ast.stmt.BlockStmt;
 import org.walkmod.javalang.ast.stmt.CatchClause;
 import org.walkmod.javalang.ast.stmt.TryStmt;
+import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
-public class EmptyCatchBlock<A> extends AbstractCheckStyleRule<A> {
+public class EmptyCatchBlock<A> extends VoidVisitorAdapter<A> {
 
    private String commentFormat = " Intentionally blank ";
 

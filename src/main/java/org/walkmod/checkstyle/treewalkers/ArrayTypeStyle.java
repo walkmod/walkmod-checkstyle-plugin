@@ -9,8 +9,9 @@ import org.walkmod.javalang.ast.body.VariableDeclaratorId;
 import org.walkmod.javalang.ast.expr.VariableDeclarationExpr;
 import org.walkmod.javalang.ast.type.ReferenceType;
 import org.walkmod.javalang.ast.type.Type;
+import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
-public class ArrayTypeStyle<A> extends AbstractCheckStyleRule<A> {
+public class ArrayTypeStyle<A> extends VoidVisitorAdapter<A> {
 
    
    @Override

@@ -29,7 +29,7 @@ import org.walkmod.javalang.visitors.VoidVisitorAdapter;
  * @param <A> context
  */
 @RequiresSemanticAnalysis
-public class RedundantImport<A> extends AbstractCheckStyleRule<A> {
+public class RedundantImport<A> extends VoidVisitorAdapter<A> {
 
    private Map<String, ImportDeclaration> nonAsteriskImports;
 

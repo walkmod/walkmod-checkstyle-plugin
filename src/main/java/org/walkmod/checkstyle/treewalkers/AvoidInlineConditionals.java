@@ -24,7 +24,7 @@ import org.walkmod.javalang.ast.stmt.ReturnStmt;
 import org.walkmod.javalang.ast.stmt.Statement;
 import org.walkmod.javalang.visitors.VoidVisitorAdapter;
 
-public class AvoidInlineConditionals<A> extends AbstractCheckStyleRule<A> {
+public class AvoidInlineConditionals<A> extends VoidVisitorAdapter<A> {
 
    @Override
    public void visit(ConditionalExpr n, A ctx) {
