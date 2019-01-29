@@ -23,66 +23,76 @@ public class AvoidStarImport<A> extends VoidVisitorAdapter<A> {
 
    @Override
    public void visit(ImportDeclaration node, A ctx) {
-      if (node.isAsterisk()) {
-         List<SymbolReference> refs = node.getUsages();
-         Map<String, List<SymbolReference>> classes = new HashMap<String, List<SymbolReference>>();
-         if (refs != null) {
-            for (SymbolReference sr : refs) {
-               if (sr instanceof SymbolDataAware<?>) {
-                  SymbolDataAware<?> aux = (SymbolDataAware<?>) sr;
-                  SymbolData sd = aux.getSymbolData();
-                  if (sd != null && ! sd.getClazz().isMemberClass()) {
-                     List<SymbolReference> refsAux = null;
 
-                     String symbolClassName = sd.getName();
+      if (node.isAsterisk() && !node.isStatic()) {
+         //support for static imports require to take into account not only types, but also methods and properties
+         Map<String, List<SymbolReference>> classes = expandWildCardImports(node);
+         removeWildcardImports(node, classes);
+      }
+   }
 
-                     if (classes.containsKey(symbolClassName)) {
-                        refsAux = classes.get(symbolClassName);
-                     } else {
-                        refsAux = new LinkedList<SymbolReference>();
-                        classes.put(symbolClassName, refsAux);
-                     }
-                     refsAux.add(sr);
+   private Map<String, List<SymbolReference>> expandWildCardImports(ImportDeclaration node) {
+      List<SymbolReference> refs = node.getUsages();
+      Map<String, List<SymbolReference>> classes = new HashMap<String, List<SymbolReference>>();
+      if (refs != null) {
+         for (SymbolReference sr : refs) {
+            if (sr instanceof SymbolDataAware<?>) {
+               SymbolDataAware<?> aux = (SymbolDataAware<?>) sr;
+               SymbolData sd = aux.getSymbolData();
+               if (sd != null && ! sd.getClazz().isMemberClass()) {
+                  List<SymbolReference> refsAux = null;
 
+                  String symbolClassName = sd.getName();
+
+                  if (classes.containsKey(symbolClassName)) {
+                     refsAux = classes.get(symbolClassName);
+                  } else {
+                     refsAux = new LinkedList<SymbolReference>();
+                     classes.put(symbolClassName, refsAux);
                   }
+                  refsAux.add(sr);
+
                }
             }
          }
-         CompilationUnit cu = (CompilationUnit) node.getParentNode();
-         List<ImportDeclaration> imports = new LinkedList<ImportDeclaration>(cu.getImports());
-         Iterator<ImportDeclaration> it = imports.iterator();
-         int i = -1;
-         boolean errored = false;
-         boolean found = false;
-         while (it.hasNext() && !found) {
-            i++;
-            ImportDeclaration current = it.next();
-            found = (current == node);
-         }
-         if (found) {
-            it.remove();
-            if (!classes.isEmpty()) {
-               for (String clazz : classes.keySet()) {
-                  ImportDeclaration id;
-                  try {
-                     id = new ImportDeclaration((NameExpr) ASTManager.parse(NameExpr.class, clazz), node.isStatic(),
-                           false);
-                     List<SymbolReference> refsAux = classes.get(clazz);
-                     for(SymbolReference sr: refsAux){
-                        sr.setSymbolDefinition(id);
-                     }
-                     id.setUsages(refsAux);
-                     imports.add(i, id);
-                  } catch (ParseException e) {
-                     errored = true;
-                     //probably it is an static import
+      }
+      return classes;
+   }
+
+   private void removeWildcardImports(ImportDeclaration node, Map<String, List<SymbolReference>> classes) {
+      CompilationUnit cu = (CompilationUnit) node.getParentNode();
+      List<ImportDeclaration> imports = new LinkedList<ImportDeclaration>(cu.getImports());
+      Iterator<ImportDeclaration> it = imports.iterator();
+      int i = -1;
+      boolean errored = false;
+      boolean found = false;
+      while (it.hasNext() && !found) {
+         i++;
+         ImportDeclaration current = it.next();
+         found = (current == node);
+      }
+      if (found) {
+         it.remove();
+         if (!classes.isEmpty()) {
+            for (String clazz : classes.keySet()) {
+               ImportDeclaration id;
+               try {
+                  id = new ImportDeclaration((NameExpr) ASTManager.parse(NameExpr.class, clazz), node.isStatic(),
+                          false);
+                  List<SymbolReference> refsAux = classes.get(clazz);
+                  for(SymbolReference sr: refsAux){
+                     sr.setSymbolDefinition(id);
                   }
+                  id.setUsages(refsAux);
+                  imports.add(i, id);
+               } catch (ParseException e) {
+                  errored = true;
                }
             }
          }
-         if (!errored) {
-            cu.setImports(imports);
-         }
+      }
+      if (!errored) {
+         cu.setImports(imports);
       }
    }
 }

@@ -16,6 +16,9 @@ public class UnusedImports<A> extends VoidVisitorAdapter<A> {
    @Override
    public void visit(ImportDeclaration node, A ctx) {
       List<SymbolReference> usages = node.getUsages();
+      if (node.isStatic()) {
+         return;
+      }
       if (usages == null || usages.isEmpty()) {
          CompilationUnit cu = (CompilationUnit) node.getParentNode();
          List<ImportDeclaration> imports = new LinkedList<ImportDeclaration>(cu.getImports());
