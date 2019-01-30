@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.walkmod.javalang.ast.CompilationUnit;
 import org.walkmod.javalang.test.SemanticTest;
 
+
 public class AvoidStarImportTest extends SemanticTest{
 
    @Test
@@ -34,11 +35,12 @@ public class AvoidStarImportTest extends SemanticTest{
    }
 
    @Test
-   public void testStaticImports() throws Exception {
-      CompilationUnit cu = compile(
-              "import static java.lang.Math.*; public class Foo{ int absoluteValue = abs(-21); }");
+   public void testExcludeStaticImports() throws Exception {
+      CompilationUnit cu = compile("import static java.util.Collections.*; public class " +
+              "Foo{ Object l = EMPTY_LIST; String x; }");
       AvoidStarImport<?> visitor = new AvoidStarImport<Object>();
       cu.accept(visitor, null);
       Assert.assertEquals(1, cu.getImports().size());
+      Assert.assertEquals("java.util.Collections", cu.getImports().get(0).getName().toString());
    }
 }
